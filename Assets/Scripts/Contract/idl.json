@@ -1,0 +1,94 @@
+{
+  "version": "0.1.0",
+  "name": "sonic_hunt",
+  "instructions": [
+    {
+      "name": "initMaster",
+      "accounts": [
+        { "name": "master", "isMut": true, "isSigner": false },
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "addUser",
+      "accounts": [
+        { "name": "user", "isMut": true, "isSigner": false },
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "username", "type": "string" }]
+    },
+    {
+      "name": "addFunds",
+      "accounts": [
+        { "name": "user", "isMut": true, "isSigner": false },
+        { "name": "master", "isMut": false, "isSigner": false },
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "owner", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "funds", "type": "u64" }]
+    },
+    {
+      "name": "withdrawFunds",
+      "accounts": [
+        { "name": "user", "isMut": true, "isSigner": false },
+        { "name": "master", "isMut": false, "isSigner": false },
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "withdrawer", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "amount", "type": "u64" },
+        { "name": "userAddress", "type": "publicKey" }
+      ]
+    },
+    {
+      "name": "updateResults",
+      "accounts": [
+        { "name": "user", "isMut": true, "isSigner": false },
+        { "name": "master", "isMut": false, "isSigner": false },
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "value", "type": "i64" },
+        { "name": "userAddress", "type": "publicKey" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "User",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "publicKey" },
+          { "name": "funds", "type": "u64" },
+          { "name": "username", "type": "string" }
+        ]
+      }
+    },
+    {
+      "name": "Master",
+      "type": {
+        "kind": "struct",
+        "fields": [{ "name": "owner", "type": "publicKey" }]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds for withdrawal"
+    },
+    {
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: Only the user's authority can withdraw funds"
+    }
+  ]
+}

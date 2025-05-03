@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.IO;
+using Photon.Realtime;
+using System;
 
 
 public class RoomManager : MonoBehaviourPunCallbacks{
@@ -16,6 +18,10 @@ public class RoomManager : MonoBehaviourPunCallbacks{
         else{
             Destroy(gameObject);
         }  
+    }
+
+    void Start(){
+        PhotonNetwork.ConnectUsingSettings();
     }
 
     public override void OnEnable() {
@@ -34,4 +40,39 @@ public class RoomManager : MonoBehaviourPunCallbacks{
         // }
     }
 
+    public override void OnConnectedToMaster(){
+        Debug.Log("Connected to Photon Master Server!");
+        PhotonNetwork.JoinLobby();
+        PhotonNetwork.AutomaticallySyncScene=true;
+    }
+
+    public override void OnDisconnected(DisconnectCause cause){
+        Debug.LogError($"   Disconnected from Photon: {cause}");
+    }
+    public override void OnJoinedLobby(){
+        Debug.Log($"Joined Lobby:: {PhotonNetwork.CurrentLobby.Name}");
+        PhotonNetwork.NickName = SolanaManager.instance.userAccount?.Username ?? "subhash";   
+    }
+
+    public void JoinRoom(string roomName){
+        try{
+            RoomOptions roomOptions = new(){
+                IsVisible = true,
+                IsOpen = true,
+                MaxPlayers = 4
+            };
+            TypedLobby typedLobby = new(roomName, LobbyType.Default);
+            PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions, typedLobby);
+            Debug.Log($"Joined Room:: {roomName}");
+        }catch(Exception e){
+            Debug.LogError($"Error joining room: {e}");
+        }
+    }   
+
+    public override void OnPlayerEnteredRoom(Player newPlayer){
+        Debug.Log($"Player Joined room: {newPlayer.NickName}");
+    }
+    public  void Shoot(){
+        Debug.Log($"Shoot:");
+    }
 }

@@ -6,10 +6,16 @@ using UnityEngine.SceneManagement;
 using System.IO;
 using Photon.Realtime;
 using System;
+using System.Linq;
+using TMPro;
 
 
 public class RoomManager : MonoBehaviourPunCallbacks{
     public static RoomManager instance;
+    [SerializeField] Transform playerListContent;
+    [SerializeField] GameObject playerListItemPrefab;
+    public GameObject startButton;
+    [SerializeField] TMP_Text roomNameText;
 
     void Awake(){
         if(instance == null){
@@ -22,22 +28,6 @@ public class RoomManager : MonoBehaviourPunCallbacks{
 
     void Start(){
         PhotonNetwork.ConnectUsingSettings();
-    }
-
-    public override void OnEnable() {
-        base.OnEnable();
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    public override void OnDisable() {
-        base.OnDisable();
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode){
-        // if(scene.buildIndex == 2){
-        //     PhotonNetwork.Instantiate(Path.Combine("PhotonPrefab","PlayerController"),Vector3.zero, Quaternion.identity);
-        // }
     }
 
     public override void OnConnectedToMaster(){
@@ -74,5 +64,33 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     }
     public  void Shoot(){
         Debug.Log($"Shoot:");
+    }
+
+    public override void OnJoinedRoom(){
+        MenuManager.instance.OpenMenu("RoomMenu");
+        roomNameText.text = $"Bidding {PhotonNetwork.CurrentRoom.Name} coins";
+
+        Player[] players = PhotonNetwork.PlayerList;
+
+        foreach(Transform child in playerListContent){
+            Destroy(child.gameObject);
+        }
+
+        for(int i=0; i<players.Count(); i++){
+            GameObject playerItem = Instantiate(playerListItemPrefab, playerListContent);
+            playerItem.SetActive(true);
+            playerItem.GetComponent<PlayerListItem>().SetUp(players[i]);
+         } 
+
+         startButton.SetActive(PhotonNetwork.IsMasterClient);
+    }
+
+    public void LeaveRoom(){
+        PhotonNetwork.LeaveRoom();
+        MenuManager.instance.OpenMenu("ContractMenu");
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient){
+       startButton.SetActive(PhotonNetwork.IsMasterClient);
     }
 }

@@ -16,6 +16,7 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     [SerializeField] GameObject playerListItemPrefab;
     public GameObject startButton;
     [SerializeField] TMP_Text roomNameText;
+  
 
     void Awake(){
         if(instance == null){
@@ -61,6 +62,9 @@ public class RoomManager : MonoBehaviourPunCallbacks{
 
     public override void OnPlayerEnteredRoom(Player newPlayer){
         Debug.Log($"Player Joined room: {newPlayer.NickName}");
+        GameObject playerItem = Instantiate(playerListItemPrefab, playerListContent);
+        playerItem.SetActive(true);
+        playerItem.GetComponent<PlayerListItem>().SetUp(newPlayer);
     }
     public  void Shoot(){
         Debug.Log($"Shoot:");
@@ -93,4 +97,10 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     public override void OnMasterClientSwitched(Player newMasterClient){
        startButton.SetActive(PhotonNetwork.IsMasterClient);
     }
+
+    public void StartGame(){
+        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerController"),Vector3.zero, Quaternion.identity);
+    }
+
+
 }

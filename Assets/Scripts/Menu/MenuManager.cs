@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviourPunCallbacks{
     public static MenuManager instance;
+
+    public GameObject menuCamera;
     public Menu[] menus;
 
     void Awake() {

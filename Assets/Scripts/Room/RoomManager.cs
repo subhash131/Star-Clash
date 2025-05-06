@@ -16,6 +16,8 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     [SerializeField] GameObject playerListItemPrefab;
     public GameObject startButton;
     [SerializeField] TMP_Text roomNameText;
+    public GameObject menuHeader;
+    public GameObject msgText;
   
 
     void Awake(){
@@ -98,9 +100,24 @@ public class RoomManager : MonoBehaviourPunCallbacks{
        startButton.SetActive(PhotonNetwork.IsMasterClient);
     }
 
-    public void StartGame(){
-        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerController"),Vector3.zero, Quaternion.identity);
+    public void StartGame() {
+        if (PhotonNetwork.IsMasterClient) {
+            menuHeader.SetActive(false);
+            msgText.SetActive(false);
+            photonView.RPC("StartGameRPC", RpcTarget.All);
+        }
+    }
+    public void QuitGame() {
+        //TODO::
+        menuHeader.SetActive(true);
+        msgText.SetActive(true);
     }
 
+    [PunRPC]
+    private void StartGameRPC(){
+        Debug.Log("Starting game for all clients!");
 
+        MenuManager.instance.OpenMenu("GameMenu");
+        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerController"),Vector3.zero, Quaternion.identity);
+    }
 }

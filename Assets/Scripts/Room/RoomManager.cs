@@ -8,6 +8,8 @@ using Photon.Realtime;
 using System;
 using System.Linq;
 using TMPro;
+using UnityEngine.UI;
+using Solana.Unity.Metaplex.Auctioneer.Types;
 
 
 public class RoomManager : MonoBehaviourPunCallbacks{
@@ -18,11 +20,13 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     [SerializeField] TMP_Text roomNameText;
     public GameObject menuHeader;
     public GameObject msgText;
+    public Slider scoreSlider;
   
 
     void Awake(){
         if(instance == null){
             instance = this;
+            DontDestroyOnLoad(gameObject);            
         }
         else{
             Destroy(gameObject);
@@ -44,15 +48,20 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     }
     public override void OnJoinedLobby(){
         Debug.Log($"Joined Lobby:: {PhotonNetwork.CurrentLobby.Name}");
-        PhotonNetwork.NickName = SolanaManager.instance.userAccount?.Username ?? "subhash";   
+        PhotonNetwork.NickName = SolanaManager.instance.playerName ?? "unknown";   
     }
 
     public void JoinRoom(string roomName){
+
+        ExitGames.Client.Photon.Hashtable customProperties = new(){
+            { "BidAmount", int.Parse(roomName) },
+        };
         try{
             RoomOptions roomOptions = new(){
                 IsVisible = true,
                 IsOpen = true,
-                MaxPlayers = 4
+                MaxPlayers = 10,
+                CustomRoomProperties =  customProperties,
             };
             TypedLobby typedLobby = new(roomName, LobbyType.Default);
             PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions, typedLobby);
@@ -116,8 +125,19 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     [PunRPC]
     private void StartGameRPC(){
         Debug.Log("Starting game for all clients!");
+        int bid = PhotonNetwork.CurrentRoom.CustomProperties["BidAmount"] != null ? (int)PhotonNetwork.CurrentRoom.CustomProperties["BidAmount"] : 0;   
+
+        // SolanaManager.instance.messageText.text = $"Bidding {bid} coins";
+       
 
         MenuManager.instance.OpenMenu("GameMenu");
         PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerController"),Vector3.zero, Quaternion.identity);
+        scoreSlider.maxValue = PhotonNetwork.CurrentRoom.PlayerCount * bid;
+        scoreSlider.value = bid;
+        Debug.Log(
+            "Max Score Slider Value: " + scoreSlider.maxValue + 
+            " Players: " + PhotonNetwork.CurrentRoom.PlayerCount +
+            " Bid: " + bid
+            );
     }
 }

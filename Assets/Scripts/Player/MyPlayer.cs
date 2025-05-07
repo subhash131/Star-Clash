@@ -1,6 +1,8 @@
+using System;
 using System.IO;
 using ExitGames.Client.Photon;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -113,7 +115,10 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
             targetCameraLocalPos,
             ref cameraVelocity,
             0.1f
-        );
+        );        
+        PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("Score", out object currentScore);
+        if(RoomManager.instance.scoreSlider != null && currentScore != null)
+        RoomManager.instance.scoreSlider.value = float.Parse(currentScore.ToString());
     }
 
     public void Shoot(){
@@ -228,7 +233,6 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
         if (!view.IsMine) return;
         Debug.Log("My Player OnTriggerEnter ::" + other.gameObject.name); 
         ReduceMyScore(1);
-
         AddOpponentScore(other.gameObject.GetComponent<PhotonView>().OwnerActorNr, 1);
         PhotonNetwork.Destroy(other.gameObject);
     }

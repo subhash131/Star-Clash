@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviourPunCallbacks{
         Vector3 spawnPosition = basePosition + new Vector3(offset, 0f, 0f);
 
         Hashtable props = new(){
-                { "Score", SolanaManager.instance != null ? SolanaManager.instance.playerCoins : 0 },
+                { "Score", PhotonNetwork.CurrentRoom.CustomProperties["BidAmount"] },
                 { "PlayerName", PhotonNetwork.NickName },
                 { "PlayerID", PhotonNetwork.LocalPlayer.ActorNumber },
             };

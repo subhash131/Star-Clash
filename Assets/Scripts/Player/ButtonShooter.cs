@@ -2,8 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class ButtonShooter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
-{
+public class ButtonShooter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler{
 
     public static ButtonShooter instance;
     public MyPlayer player;
@@ -30,13 +29,18 @@ public class ButtonShooter : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             StopCoroutine(fireCoroutine);
     }
 
-    private IEnumerator AutoFire()
-    {
+    private IEnumerator AutoFire(){
         yield return new WaitForSeconds(holdFireRate); 
         while (isHolding)
         {
             player.Shoot();
             yield return new WaitForSeconds(holdFireRate);
+        }
+    }
+
+    public void OnDrag(PointerEventData eventData){
+        if (player != null) {
+            player.OnSwipe(eventData.delta);
         }
     }
 }

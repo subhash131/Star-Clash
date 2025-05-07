@@ -10,10 +10,16 @@ public class MenuManager : MonoBehaviourPunCallbacks{
     public GameObject menuCamera;
     public Menu[] menus;
 
-    void Awake() {
-        instance = this;
-    }
 
+    void Awake(){
+        if(instance == null){
+            instance = this;
+            DontDestroyOnLoad(gameObject);            
+        }
+        else{
+            Destroy(gameObject);
+        }  
+    }
     public void OpenMenu(string menuName){
         for(int i=0; i<menus.Length; i++){
             if(menus[i].menuName == menuName){

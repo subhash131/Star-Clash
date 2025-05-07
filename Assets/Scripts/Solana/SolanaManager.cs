@@ -45,12 +45,8 @@ public class SolanaManager : MonoBehaviour{
             instance = this;
             DontDestroyOnLoad(gameObject);            
             DontDestroyOnLoad(Web3.Instance.gameObject);
-            // MenuManager.instance.OpenMenu("ConnectWalletMenu");
         }
         else Destroy(gameObject);
-
-        //TODO::
-        // playerCoins=90;
     }
 
     private void Start() {

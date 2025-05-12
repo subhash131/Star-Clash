@@ -48,7 +48,7 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     }
     public override void OnJoinedLobby(){
         Debug.Log($"Joined Lobby:: {PhotonNetwork.CurrentLobby.Name}");
-        PhotonNetwork.NickName = SolanaManager.instance.playerName ?? "unknown";   
+        Debug.Log($"USER Joined Lobby:: {SolanaManager.instance.playerName}");
     }
 
     public void JoinRoom(string roomName){
@@ -65,6 +65,7 @@ public class RoomManager : MonoBehaviourPunCallbacks{
             };
             TypedLobby typedLobby = new(roomName, LobbyType.Default);
             PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions, typedLobby);
+            PhotonNetwork.NickName = SolanaManager.instance.playerName ?? "unknown";   
             Debug.Log($"Joined Room:: {roomName}");
         }catch(Exception e){
             Debug.LogError($"Error joining room: {e}");
@@ -77,9 +78,7 @@ public class RoomManager : MonoBehaviourPunCallbacks{
         playerItem.SetActive(true);
         playerItem.GetComponent<PlayerListItem>().SetUp(newPlayer);
     }
-    public  void Shoot(){
-        Debug.Log($"Shoot:");
-    }
+
 
     public override void OnJoinedRoom(){
         MenuManager.instance.OpenMenu("RoomMenu");

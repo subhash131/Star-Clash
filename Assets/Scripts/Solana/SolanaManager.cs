@@ -121,9 +121,10 @@ public class SolanaManager : MonoBehaviour{
 
             if (result.WasSuccessful){
                 userAccount = result.ParsedResult;
-                playerNameText.text = $"Hi {result.ParsedResult.Username}";  
                 playerName = result.ParsedResult.Username;
                 playerCoins = SolToCoins(LamportsToSol(result.ParsedResult.Funds));
+                
+                playerNameText.text = $"Hi {playerName}";  
                 coinsText.text = $"Coins: {playerCoins}";  
             }else{
                 messageText.text = "Failed to fetch user account!";

@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviourPunCallbacks{
 
         Hashtable props = new(){
                 { "Score", PhotonNetwork.CurrentRoom.CustomProperties["BidAmount"] },
-                { "PlayerName", PhotonNetwork.NickName },
+                { "PlayerName", SolanaManager.instance.playerName },
                 { "PlayerID", PhotonNetwork.LocalPlayer.ActorNumber },
             };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);

@@ -176,64 +176,8 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
         targetRotation = Quaternion.Euler(pitch, yaw, 0f);
     }
 
-    private void AddOpponentScore(int oppActorNumber, int score){
-        if (!view.IsMine) return; 
 
-        PhotonNetwork.CurrentRoom.Players[oppActorNumber].CustomProperties.TryGetValue("Score", out object currentScore);
-        int newScore = (int)currentScore + score;
-        Hashtable props = new(){
-            { "Score", newScore },
-        };
-        PhotonNetwork.CurrentRoom.Players[oppActorNumber].SetCustomProperties(props);
-        Debug.Log("Opponent Score Updated: " + newScore);
-    }   
-
-    private void ReduceMyScore(int score){
-        if (!view.IsMine) return; 
-
-        PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("Score", out object currentScore);
-        int newScore = (int)currentScore - score;
-
-        Hashtable props = new(){
-            { "Score", newScore },
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
-
-       if (newScore <= 30){
-            float scale = 1f;
-            if (newScore <= 20)
-                scale = 0.3f; 
-            else
-                scale = 0.5f; 
-            view.RPC("ScalePlayerRPC", RpcTarget.All, scale);
-        }
-    }  
-
-    [PunRPC]
-    void ScalePlayerRPC(float targetScale){
-        StopAllCoroutines(); // Stop any previous scaling coroutine
-        StartCoroutine(SmoothScale(Vector3.one * targetScale, 0.5f)); // 0.5 seconds duration
-    }
-
-    private System.Collections.IEnumerator SmoothScale(Vector3 targetScale, float duration){
-        Vector3 initialScale = transform.localScale;
-        float elapsed = 0f;
-
-        while (elapsed < duration){
-            transform.localScale = Vector3.Lerp(initialScale, targetScale, elapsed / duration);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        transform.localScale = targetScale; 
-    }
+ 
 
 
-
-    void OnTriggerEnter (Collider other){
-        if (!view.IsMine) return;
-        Debug.Log("My Player OnTriggerEnter ::" + other.gameObject.name); 
-        ReduceMyScore(1);
-        AddOpponentScore(other.gameObject.GetComponent<PhotonView>().OwnerActorNr, 1);
-        PhotonNetwork.Destroy(other.gameObject);
-    }
 }

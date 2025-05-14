@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
-using Solana.Unity.Metaplex.Auctioneer.Types;
 
 
 public class RoomManager : MonoBehaviourPunCallbacks{
@@ -20,7 +19,62 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     [SerializeField] TMP_Text roomNameText;
     public GameObject menuHeader;
     public GameObject msgText;
+
+    [Header("Score bar")]
     public Slider scoreSlider;
+    public TMP_Text maxScoreText;
+    public TMP_Text myScoreText;
+
+    public GameObject gameOverPanel;
+    public GameObject exitOrContinuePanel;
+    public TMP_Text resultText;
+
+
+    [Header("Timer")]
+    public float timeRemaining = 310f; 
+    public bool timerIsRunning = false;
+    public TMP_Text timerText;
+    void Update(){
+        if (timerIsRunning){
+            if (timeRemaining > 0){
+                timeRemaining -= Time.deltaTime;
+                UpdateTimerDisplay(timeRemaining);
+            }else{
+                timeRemaining = 0;
+                timerIsRunning = false;
+                UpdateTimerDisplay(timeRemaining);
+                Debug.Log("Timer finished!");
+            }
+        }
+    }
+
+    void UpdateTimerDisplay(float timeToDisplay){
+        timeToDisplay += 1f; // Optional for display smoothness
+        int minutes = Mathf.FloorToInt(timeToDisplay / 60f);
+        int seconds = Mathf.FloorToInt(timeToDisplay % 60f);
+        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+
+    public void OpenPanel(string panelName){
+        switch(panelName){
+            case "GameOverPanel":
+                gameOverPanel.SetActive(true);
+                exitOrContinuePanel.SetActive(false);
+                break;
+            case "ExitOrContinuePanel":
+                exitOrContinuePanel.SetActive(true);
+                gameOverPanel.SetActive(false);
+                break;
+            case "Continue":
+                exitOrContinuePanel.SetActive(false);
+                gameOverPanel.SetActive(false);
+                break;
+            default:
+                Debug.LogError($"Unknown panel name: {panelName}");
+                break;
+        }
+    }
+
   
 
     void Awake(){
@@ -44,7 +98,7 @@ public class RoomManager : MonoBehaviourPunCallbacks{
     }
 
     public override void OnDisconnected(DisconnectCause cause){
-        Debug.LogError($"   Disconnected from Photon: {cause}");
+        Debug.LogError($"Disconnected from Photon: {cause}");
     }
     public override void OnJoinedLobby(){
         Debug.Log($"Joined Lobby:: {PhotonNetwork.CurrentLobby.Name}");
@@ -128,11 +182,14 @@ public class RoomManager : MonoBehaviourPunCallbacks{
 
         // SolanaManager.instance.messageText.text = $"Bidding {bid} coins";
        
-
         MenuManager.instance.OpenMenu("GameMenu");
         PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs","PlayerController"),Vector3.zero, Quaternion.identity);
         scoreSlider.maxValue = PhotonNetwork.CurrentRoom.PlayerCount * bid;
         scoreSlider.value = bid;
+
+        maxScoreText.text = scoreSlider.maxValue.ToString();
+        myScoreText.text = bid.ToString();
+        
         Debug.Log(
             "Max Score Slider Value: " + scoreSlider.maxValue + 
             " Players: " + PhotonNetwork.CurrentRoom.PlayerCount +

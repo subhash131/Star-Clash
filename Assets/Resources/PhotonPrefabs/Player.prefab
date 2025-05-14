@@ -272,7 +272,7 @@ MonoBehaviour:
   fppCamera: {fileID: 666051303982741777}
   firePoint: {fileID: 3775253578781174426}
   shootForce: 100
-  fireCooldown: 0.2
+  fireCoolDown: 0.2
   moveSpeed: 10
   rotationPerSwipe: 90
   rotationSmoothSpeed: 10

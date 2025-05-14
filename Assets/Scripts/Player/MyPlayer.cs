@@ -3,11 +3,13 @@ using System.IO;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 
 public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
+
     [Header("References")]
     private InputActions inputActions;
     [SerializeField]private Rigidbody playerRigidbody;
@@ -19,7 +21,7 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
 
     [Header("Shooting")]
     [SerializeField] private float shootForce = 100f;
-    [SerializeField] private float fireCooldown = 0.2f;
+    [SerializeField] private float fireCoolDown = 0.2f;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 10f;
@@ -38,17 +40,13 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
     private float yaw;   // left/right
     private float pitch; // up/down
 
-
     private void Awake(){
         playerRigidbody = GetComponent<Rigidbody>();
         inputActions = new InputActions();
         view = GetComponent<PhotonView>();
         cameraInitialLocalPosition = fppCamera.transform.localPosition;
-        
-
         // Ensure the camera is disabled for non-local players
-        if (!view.IsMine)
-        {
+        if (!view.IsMine) {
             fppCamera.enabled = false;
             fppCamera.gameObject.SetActive(false);
             inputActions.Disable(); 
@@ -104,7 +102,7 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
         worldDirection.y = playerRigidbody.velocity.y; // Keep current vertical velocity
         playerRigidbody.velocity = worldDirection;
 
-        Vector3 lagOffset = new Vector3(
+        Vector3 lagOffset = new(
             -joystick.Horizontal * moveSpeed * cameraLagFactor,
             0f,
             -joystick.Vertical * moveSpeed * cameraLagFactor
@@ -118,7 +116,17 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
         );        
         PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("Score", out object currentScore);
         if(RoomManager.instance.scoreSlider != null && currentScore != null)
-        RoomManager.instance.scoreSlider.value = float.Parse(currentScore.ToString());
+            RoomManager.instance.scoreSlider.value = float.Parse(currentScore.ToString());
+        if(RoomManager.instance.myScoreText != null && currentScore != null){
+            RoomManager.instance.myScoreText.text = currentScore.ToString();
+            if(int.Parse(currentScore.ToString()) <= 0){
+                // Player has no score left, handle accordingly
+                Debug.Log($"Player {PhotonNetwork.LocalPlayer.NickName} has reached zero score.");
+                // PhotonNetwork.Destroy(view.gameObject); // Destroy the player object
+                RoomManager.instance.gameOverPanel.SetActive(true); // Show game over panel
+                RoomManager.instance.resultText.text = $"You lose!";
+            }
+        }
     }
 
     public void Shoot(){
@@ -126,7 +134,7 @@ public class MyPlayer: MonoBehaviour, IDragHandler, IPunObservable{
             // Debug.LogWarning("Shoot aborted: view is null or not mine!");
             return;
         }
-        if (Time.time - lastFireTime < fireCooldown) return;
+        if (Time.time - lastFireTime < fireCoolDown) return;
         GameObject projectile = PhotonNetwork.Instantiate(
             Path.Combine("PhotonPrefabs", "Projectile"),
             firePoint.position,

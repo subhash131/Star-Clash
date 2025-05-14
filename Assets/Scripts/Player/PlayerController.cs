@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviourPunCallbacks{
             0,
             new object[] { view.ViewID }
         );
+        RoomManager.instance.timerIsRunning = true;
         Debug.Log("Player instantiated for ViewID: " + view.ViewID);
     }
 

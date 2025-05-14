@@ -13,7 +13,7 @@ public class Projectile : MonoBehaviourPunCallbacks
     private void Awake()
     {
         view = GetComponent<PhotonView>();
-    }
+    }   
 
     void Start()
     {
@@ -38,19 +38,24 @@ public class Projectile : MonoBehaviourPunCallbacks
 
     void ReduceScore(int score, PhotonView playerView)
     {
-        if (!PhotonNetwork.IsMasterClient) return; // Only master client updates scores
+        // if (!PhotonNetwork.IsMasterClient) return; // Only master client updates scores
 
         Player hitPlayer = playerView.Owner;
-        if (hitPlayer != null)
-        {
+        if (hitPlayer != null){
             // Get current score
             hitPlayer.CustomProperties.TryGetValue("Score", out object currentScore);
             int newScore = currentScore != null ? (int)currentScore - score : -score;
             newScore = Mathf.Max(0, newScore); // Prevent negative scores
 
+            if(newScore == 0){
+                // Player has no score left, handle accordingly
+                Debug.Log($"Player {hitPlayer.NickName} has reached zero score.");
+                PhotonNetwork.Destroy(playerView.gameObject); // Destroy the player object
+                // RoomManager.instance.gameOverPanel.SetActive(true); // Show game over panel
+            }
+
             // Update score in custom properties
-            ExitGames.Client.Photon.Hashtable scoreUpdate = new ExitGames.Client.Photon.Hashtable
-            {
+            ExitGames.Client.Photon.Hashtable scoreUpdate = new(){
                 { "Score", newScore }
             };
             hitPlayer.SetCustomProperties(scoreUpdate);
@@ -61,7 +66,6 @@ public class Projectile : MonoBehaviourPunCallbacks
 
     void IncreaseScore(int score, Player player)
     {
-        if (!PhotonNetwork.IsMasterClient) return; // Only master client updates scores
 
         if (player != null)
         {

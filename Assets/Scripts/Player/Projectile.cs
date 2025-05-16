@@ -27,8 +27,7 @@ public class Projectile : MonoBehaviourPunCallbacks
             PhotonView playerView = other.GetComponent<PhotonView>();
             Debug.Log("playerView ::" + playerView); 
             if (playerView != null && playerView.OwnerActorNr != ownerActorNumber) {
-                ReduceScore(1, playerView);
-                IncreaseScore(1, PhotonNetwork.CurrentRoom.GetPlayer(ownerActorNumber));
+                UpdateScores(1, playerView, PhotonNetwork.CurrentRoom.GetPlayer(ownerActorNumber));
             }
         }
 
@@ -36,51 +35,43 @@ public class Projectile : MonoBehaviourPunCallbacks
             PhotonNetwork.Destroy(gameObject);
     }
 
-    void ReduceScore(int score, PhotonView playerView)
-    {
-        // if (!PhotonNetwork.IsMasterClient) return; // Only master client updates scores
-
-        Player hitPlayer = playerView.Owner;
-        if (hitPlayer != null){
-            // Get current score
-            hitPlayer.CustomProperties.TryGetValue("Score", out object currentScore);
-            int newScore = currentScore != null ? (int)currentScore - score : -score;
-            newScore = Mathf.Max(0, newScore); // Prevent negative scores
-
-            if(newScore == 0){
-                // Player has no score left, handle accordingly
-                Debug.Log($"Player {hitPlayer.NickName} has reached zero score.");
-                PhotonNetwork.Destroy(playerView.gameObject); // Destroy the player object
-                // RoomManager.instance.gameOverPanel.SetActive(true); // Show game over panel
-            }
-
-            // Update score in custom properties
-            ExitGames.Client.Photon.Hashtable scoreUpdate = new(){
-                { "Score", newScore }
-            };
-            hitPlayer.SetCustomProperties(scoreUpdate);
-
-            Debug.Log($"Reduced score for player {hitPlayer.NickName} to {newScore}");
+    void UpdateScores (int score, PhotonView enemyView, Player shooter){
+        Player hitPlayer = enemyView.Owner;
+        if(hitPlayer == null || shooter == null){
+            Debug.LogError("player is null");
+            return;
         }
+        // Reduce score for the hit player
+        hitPlayer.CustomProperties.TryGetValue("Score", out object hitPlayerCurrentScore);
+        int hitPlayerNewScore = hitPlayerCurrentScore != null ? (int)hitPlayerCurrentScore - score : -score;
+        hitPlayerNewScore = Mathf.Max(0, hitPlayerNewScore); // Prevent negative scores
+
+        if(hitPlayerNewScore == 0){
+            // Player has no score left, handle accordingly
+            Debug.Log($"Player {hitPlayer.NickName} has reached zero score.");
+            PhotonNetwork.Destroy(enemyView.gameObject); // Destroy the player object
+            // RoomManager.instance.gameOverPanel.SetActive(true); // Show game over panel
+        }
+        // Update score in custom properties
+        ExitGames.Client.Photon.Hashtable scoreUpdate = new(){
+            { "Score", hitPlayerNewScore }
+        };
+        hitPlayer.SetCustomProperties(scoreUpdate);
+
+        Debug.Log($"Reduced score for player {hitPlayer.NickName} to {hitPlayerNewScore}");
+        // Increase score for the shooter
+        shooter.CustomProperties.TryGetValue("Score", out object shooterCurrentScore);
+        int shooterNewScore = shooterCurrentScore != null && hitPlayerNewScore !=0 ? (int)shooterCurrentScore + score : score;
+
+        // Update score in custom properties
+        ExitGames.Client.Photon.Hashtable shooterUpdatedScore = new (){
+            { "Score", shooterNewScore }
+        };
+        shooter.SetCustomProperties(shooterUpdatedScore);
+
+        Debug.Log($"Increased score for player {shooter.NickName} to {shooterNewScore}");
+        
     }
 
-    void IncreaseScore(int score, Player player)
-    {
-
-        if (player != null)
-        {
-            // Get current score
-            player.CustomProperties.TryGetValue("Score", out object currentScore);
-            int newScore = currentScore != null ? (int)currentScore + score : score;
-
-            // Update score in custom properties
-            ExitGames.Client.Photon.Hashtable scoreUpdate = new ExitGames.Client.Photon.Hashtable
-            {
-                { "Score", newScore }
-            };
-            player.SetCustomProperties(scoreUpdate);
-
-            Debug.Log($"Increased score for player {player.NickName} to {newScore}");
-        }
-    }
+ 
 }

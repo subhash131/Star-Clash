@@ -164,8 +164,7 @@ public class RoomManager : MonoBehaviourPunCallbacks{
 
     public void StartGame() {
         if (PhotonNetwork.IsMasterClient) {
-            menuHeader.SetActive(false);
-            msgText.SetActive(false);
+           
             photonView.RPC("StartGameRPC", RpcTarget.All);
         }
     }
@@ -189,6 +188,9 @@ public class RoomManager : MonoBehaviourPunCallbacks{
 
         maxScoreText.text = scoreSlider.maxValue.ToString();
         myScoreText.text = bid.ToString();
+
+        menuHeader.SetActive(false);
+        msgText.SetActive(false);
         
         Debug.Log(
             "Max Score Slider Value: " + scoreSlider.maxValue + 

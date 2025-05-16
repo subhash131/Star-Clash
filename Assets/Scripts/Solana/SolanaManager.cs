@@ -31,7 +31,7 @@ public class SolanaManager : MonoBehaviour{
 
 
     public User userAccount;
-    public string playerName;
+    public string playerName = null;
     // public string message;
     public int playerCoins = 0;
     // public GameObject header;   

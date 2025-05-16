@@ -9,7 +9,6 @@ Library: D:\unity\Star Clash\Temp\StagingArea\tempburstlibs\armeabi-v7a\lib_burs
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\unity\Star Clash\Temp\Burst
---debug=Full
 --key-folder=C:/Program Files/Unity/Hub/Editor/2021.3.45f1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=D:\unity\Star Clash\Library\Burst
 --output=D:\unity\Star Clash\Temp\StagingArea\tempburstlibs\armeabi-v7a\lib_burst_generated
